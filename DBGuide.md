@@ -13,7 +13,3 @@ Describes how to create local database and use it with this project.
 7) To see columns of a particular table type `show columns from "table_name";`
 8) To see what's stored in a database by entity type `select * from "table_name";` or `select id from "table_name";` if you want to see id only etc.
 9) To delete local database from your computer type `drop database "db_name";`
-
-
-
-select id, date_of_check, returned_http_status_code, monitored_endpoint_id from result;
