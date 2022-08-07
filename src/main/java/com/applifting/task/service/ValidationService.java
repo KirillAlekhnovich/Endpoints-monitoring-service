@@ -5,7 +5,6 @@ import com.applifting.task.entity.MonitoredEndpoint;
 import com.applifting.task.entity.User;
 import com.applifting.task.exception.*;
 import com.applifting.task.repository.MonitoredEndpointRepository;
-import com.applifting.task.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,27 +12,25 @@ import java.util.Optional;
 @Service
 public class ValidationService {
     private final MonitoredEndpointRepository monitoredEndpointRepository;
-    private final UserRepository userRepository;
 
-    public ValidationService(MonitoredEndpointRepository monitoredEndpointRepository, UserRepository userRepository) {
+    public ValidationService(MonitoredEndpointRepository monitoredEndpointRepository) {
         this.monitoredEndpointRepository = monitoredEndpointRepository;
-        this.userRepository = userRepository;
     }
 
     public MonitoredEndpoint getMonitoredEndpointOrThrowExceptionIfEndpointDoesNotExist(Long id)
             throws EndpointDoesNotExistException {
         Optional<MonitoredEndpoint> optionalId = monitoredEndpointRepository.findById(id);
         if (optionalId.isEmpty()) {
-            throw new EndpointDoesNotExistException("Monitored endpoint with id " + id + " does not exist.");
+            throw new EndpointDoesNotExistException(id);
         }
         return optionalId.get();
     }
 
     // Checks is user created this endpoint
     public void checkIfUserIsAllowedToModifyThisEndpointOrThrowException(User user, MonitoredEndpoint monitoredEndpoint)
-            throws UserIsNotAllowedToModifyThisEndpointException {
+            throws UserCantModifyEndpointException {
         if (!user.getId().equals(monitoredEndpoint.getOwner().getId())) {
-            throw new UserIsNotAllowedToModifyThisEndpointException("This user is not allowed to modify this endpoint.");
+            throw new UserCantModifyEndpointException();
         }
     }
 
@@ -42,8 +39,7 @@ public class ValidationService {
         Optional<MonitoredEndpoint> optionalMonitoredEndpoint
                 = Optional.ofNullable(monitoredEndpointRepository.findByOwnerAndUrl(user, monitoredEndpointURL));
         if (optionalMonitoredEndpoint.isPresent()) {
-            throw new EndpointAlreadyExistsException("User already monitors an endpoint with this URL (it's id is " +
-                    optionalMonitoredEndpoint.get().getId() + ").");
+            throw new EndpointAlreadyExistsException(optionalMonitoredEndpoint.get().getId());
         }
     }
 
@@ -59,7 +55,7 @@ public class ValidationService {
         // Checking date of last check
         if (updatedMonitoredEndpointDTO.getDateOfLastCheck() != null
                 && !monitoredEndpoint.getDateOfLastCheck().equals(updatedMonitoredEndpointDTO.getDateOfLastCheck())) {
-            throw new EndpointCanNotBeModifiedException("Date of monitored endpoints' last check can not be modified manually.");
+            throw new EndpointCanNotBeModifiedException("Date of monitored endpoint last check can not be modified manually.");
         }
         // Checking ownership
         if (updatedMonitoredEndpointDTO.getOwnerId() != null
@@ -78,7 +74,7 @@ public class ValidationService {
             throw new EndpointCanNotBeModifiedException("You are not allowed to set date of last check manually");
         }
         if (monitoredEndpointDTO.getMonitoredInterval() < 0) {
-            throw new InvalidMonitoringIntervalException("Entered monitoring interval is not valid. It can't be below zero.");
+            throw new InvalidMonitoringIntervalException();
         }
     }
 
@@ -98,7 +94,7 @@ public class ValidationService {
             updatedEndpointDTO.setMonitoredInterval(monitoredEndpoint.getMonitoredInterval());
         }
         if (updatedEndpointDTO.getMonitoredInterval() < 0) {
-            throw new InvalidMonitoringIntervalException("Entered monitoring interval is not valid. It can't be below zero.");
+            throw new InvalidMonitoringIntervalException();
         }
     }
 }

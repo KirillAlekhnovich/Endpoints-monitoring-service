@@ -1,7 +1,7 @@
 package com.applifting.task.exception;
 
-public class UserDoesNotExistException extends Exception {
-    public UserDoesNotExistException(String message) {
-        super(message);
+public class UserDoesNotExistException extends RuntimeException {
+    public UserDoesNotExistException() {
+        super("User with this access token does not exist.");
     }
 }

@@ -127,7 +127,7 @@ public class MonitoredEndpointControllerTests {
                 .andExpect(status().isNotFound());
 
         // Testing if user has tried to enter date of creation or date of last check
-        Mockito.when(monitoredEndpointService.updateById(any(String.class), any(Long.class), any(MonitoredEndpointDTO.class))).thenThrow(UserIsNotAllowedToModifyThisEndpointException.class);
+        Mockito.when(monitoredEndpointService.updateById(any(String.class), any(Long.class), any(MonitoredEndpointDTO.class))).thenThrow(UserCantModifyEndpointException.class);
         mockMvc.perform(put("/endpoints/1")
                         .header("Access-token", "123")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -22,34 +22,18 @@ public class ResultController {
     public ResponseEntity<ResultDTO> get(@RequestHeader(value = "access-token", required = false) String accessToken,
                                          @PathVariable Long resultId) {
         if (accessToken == null) {
-            return new ResponseEntity("Access token was not found in header.", HttpStatus.NOT_FOUND);
+            throw new TokenIsMissingException();
         }
-        try {
-            ResultDTO optionalResult = resultService.findResultAsDTO(accessToken, resultId);
-            return ResponseEntity.ok(optionalResult);
-        } catch (UserDoesNotExistException | ResultDoesNotExistException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (UserIsNotAllowedToModifyThisEndpointException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        ResultDTO optionalResult = resultService.findResultAsDTO(accessToken, resultId);
+        return ResponseEntity.ok(optionalResult);
     }
 
     @GetMapping("/last_endpoint_results/{endpointId}")
     public ResponseEntity getLastResults(@RequestHeader(value = "access-token", required = false) String accessToken,
                                          @PathVariable Long endpointId) {
         if (accessToken == null) {
-            return new ResponseEntity("Access token was not found in header.", HttpStatus.NOT_FOUND);
+            throw new TokenIsMissingException();
         }
-        try {
-            return ResponseEntity.ok(resultService.getLastResults(accessToken, endpointId));
-        } catch (UserDoesNotExistException | EndpointDoesNotExistException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (UserIsNotAllowedToModifyThisEndpointException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+        return ResponseEntity.ok(resultService.getLastResults(accessToken, endpointId));
     }
 }

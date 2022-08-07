@@ -7,7 +7,7 @@ import com.applifting.task.entity.User;
 import com.applifting.task.exception.EndpointDoesNotExistException;
 import com.applifting.task.exception.ResultDoesNotExistException;
 import com.applifting.task.exception.UserDoesNotExistException;
-import com.applifting.task.exception.UserIsNotAllowedToModifyThisEndpointException;
+import com.applifting.task.exception.UserCantModifyEndpointException;
 import com.applifting.task.repository.MonitoredEndpointRepository;
 import com.applifting.task.repository.ResultRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,11 +49,11 @@ public class ResultService {
     }
 
     public ResultDTO findResultAsDTO(String accessToken, Long resultId)
-            throws UserIsNotAllowedToModifyThisEndpointException, UserDoesNotExistException, ResultDoesNotExistException {
+            throws UserCantModifyEndpointException, UserDoesNotExistException, ResultDoesNotExistException {
         User user = userService.getUserByAccessToken(accessToken);
         Optional<Result> optionalResult = resultRepository.findById(resultId);
         if (optionalResult.isEmpty()) {
-            throw new ResultDoesNotExistException("Result with id " + resultId + " does not exist.");
+            throw new ResultDoesNotExistException(resultId);
         }
         Result result = optionalResult.get();
         validationService.checkIfUserIsAllowedToModifyThisEndpointOrThrowException(user, result.getMonitoredEndpoint());
@@ -61,7 +61,7 @@ public class ResultService {
     }
 
     public List<ResultDTO> getLastResults(String accessToken, Long endpointId)
-            throws UserDoesNotExistException, EndpointDoesNotExistException, UserIsNotAllowedToModifyThisEndpointException {
+            throws UserDoesNotExistException, EndpointDoesNotExistException, UserCantModifyEndpointException {
         User user = userService.getUserByAccessToken(accessToken);
         MonitoredEndpoint monitoredEndpoint =
                 validationService.getMonitoredEndpointOrThrowExceptionIfEndpointDoesNotExist(endpointId);

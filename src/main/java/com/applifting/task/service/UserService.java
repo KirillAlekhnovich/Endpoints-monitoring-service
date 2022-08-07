@@ -42,14 +42,14 @@ public class UserService {
         // Checking if entered parameters are valid
         Optional<User> optionalUser = Optional.ofNullable(userRepository.findByUsername(userDTO.getUsername()));
         if (optionalUser.isPresent()) {
-            throw new UserAlreadyExistsException("User with nickname " + userDTO.getUsername() + " already exists.");
+            throw new UserAlreadyExistsException(userDTO.getUsername());
         }
         optionalUser = Optional.ofNullable(userRepository.findByAccessToken(userDTO.getAccessToken()));
         if (optionalUser.isPresent()) {
-            throw new UserAlreadyExistsException("User with this access token already exists.");
+            throw new UserAlreadyExistsException();
         }
         if (!emailIsValid(userDTO.getEmail())){
-            throw new EmailIsNotValidException("Users' email is not valid.");
+            throw new EmailIsNotValidException();
         }
     }
 
@@ -62,7 +62,7 @@ public class UserService {
     public User getUserByAccessToken(String accessToken) throws UserDoesNotExistException {
         Optional<User> optionalUser = Optional.ofNullable(userRepository.findByAccessToken(accessToken));
         if (optionalUser.isEmpty()) {
-            throw new UserDoesNotExistException("User with this access token does not exist.");
+            throw new UserDoesNotExistException();
         }
         return optionalUser.get();
     }
