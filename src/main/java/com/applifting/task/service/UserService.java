@@ -5,6 +5,7 @@ import com.applifting.task.entity.User;
 import com.applifting.task.exception.EmailIsNotValidException;
 import com.applifting.task.exception.ParameterMissingException;
 import com.applifting.task.exception.UserAlreadyExistsException;
+import com.applifting.task.exception.UserDoesNotExistException;
 import com.applifting.task.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,14 @@ public class UserService {
         Pattern pattern = Pattern.compile(emailRegex);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
+    }
+
+    public User getUserByAccessToken(String accessToken) throws UserDoesNotExistException {
+        Optional<User> optionalUser = Optional.ofNullable(userRepository.findByAccessToken(accessToken));
+        if (optionalUser.isEmpty()) {
+            throw new UserDoesNotExistException("User with this access token does not exist.");
+        }
+        return optionalUser.get();
     }
 
     public UserDTO toDTO(User user) {

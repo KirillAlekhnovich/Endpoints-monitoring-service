@@ -16,17 +16,19 @@ public class MonitoredEndpointService {
     private final MonitoredEndpointRepository monitoredEndpointRepository;
     private final ResultService resultService;
     private final ValidationService validationService;
+    private final UserService userService;
 
     @Autowired
-    public MonitoredEndpointService(MonitoredEndpointRepository monitoredEndpointRepository, ResultService resultService, ValidationService validationService) {
+    public MonitoredEndpointService(MonitoredEndpointRepository monitoredEndpointRepository, ResultService resultService, ValidationService validationService, UserService userService) {
         this.monitoredEndpointRepository = monitoredEndpointRepository;
         this.resultService = resultService;
         this.validationService = validationService;
+        this.userService = userService;
     }
 
     public MonitoredEndpointDTO createMonitoredEndpoint(String accessToken, MonitoredEndpointDTO monitoredEndpointDTO)
             throws UserDoesNotExistException, EndpointAlreadyExistsException, EndpointCanNotBeModifiedException, InvalidMonitoringIntervalException {
-        User loggedUser = validationService.getUserEntityOrThrowExceptionIfUserDoesNotExist(accessToken);
+        User loggedUser = userService.getUserByAccessToken(accessToken);
         validationService.checkIfUserAlreadyHasAnEndpointWithThisURLOrThrowException(loggedUser, monitoredEndpointDTO.getUrl());
         // Avoiding nullptr exception
         if (monitoredEndpointDTO.getMonitoredInterval() == null) {
@@ -49,7 +51,7 @@ public class MonitoredEndpointService {
 
     public List<MonitoredEndpointDTO> findAllUserEndpoints(String accessToken)
             throws UserDoesNotExistException, UserHasNoMonitoredEndpointsException {
-        User loggedUser = validationService.getUserEntityOrThrowExceptionIfUserDoesNotExist(accessToken);
+        User loggedUser = userService.getUserByAccessToken(accessToken);
         List<MonitoredEndpointDTO> userEndpoints =
                 monitoredEndpointRepository.findAllByOwner(loggedUser).stream().map(this::toDTO).toList();
         if (userEndpoints.isEmpty()) {
@@ -61,7 +63,7 @@ public class MonitoredEndpointService {
     public MonitoredEndpointDTO updateById(String accessToken, Long endpointId, MonitoredEndpointDTO updatedMonitoredEndpointDTO)
             throws UserDoesNotExistException, EndpointDoesNotExistException, UserIsNotAllowedToModifyThisEndpointException,
             EndpointCanNotBeModifiedException, InvalidMonitoringIntervalException {
-        User loggedUser = validationService.getUserEntityOrThrowExceptionIfUserDoesNotExist(accessToken);
+        User loggedUser = userService.getUserByAccessToken(accessToken);
         MonitoredEndpoint monitoredEndpoint = validationService.getMonitoredEndpointOrThrowExceptionIfEndpointDoesNotExist(endpointId);
         return updateMonitoredEndpoint(loggedUser, monitoredEndpoint, updatedMonitoredEndpointDTO);
     }
@@ -88,7 +90,7 @@ public class MonitoredEndpointService {
 
     public void deleteMonitoredEndpointById(String accessToken, Long id)
             throws EndpointDoesNotExistException, UserDoesNotExistException, UserIsNotAllowedToModifyThisEndpointException {
-        User loggedUser = validationService.getUserEntityOrThrowExceptionIfUserDoesNotExist(accessToken);
+        User loggedUser = userService.getUserByAccessToken(accessToken);
         MonitoredEndpoint monitoredEndpoint = validationService.getMonitoredEndpointOrThrowExceptionIfEndpointDoesNotExist(id);
         validationService.checkIfUserIsAllowedToModifyThisEndpointOrThrowException(loggedUser, monitoredEndpoint);
         resultService.stopMonitoringEndpoint(monitoredEndpoint);

@@ -20,15 +20,6 @@ public class ValidationService {
         this.userRepository = userRepository;
     }
 
-    // Getting User entity by access token
-    public User getUserEntityOrThrowExceptionIfUserDoesNotExist(String accessToken) throws UserDoesNotExistException {
-        Optional<User> optionalUser = Optional.ofNullable(userRepository.findByAccessToken(accessToken));
-        if (optionalUser.isEmpty()) {
-            throw new UserDoesNotExistException("User with this access token does not exist.");
-        }
-        return optionalUser.get();
-    }
-
     public MonitoredEndpoint getMonitoredEndpointOrThrowExceptionIfEndpointDoesNotExist(Long id)
             throws EndpointDoesNotExistException {
         Optional<MonitoredEndpoint> optionalId = monitoredEndpointRepository.findById(id);

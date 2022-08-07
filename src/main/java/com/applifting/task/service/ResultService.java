@@ -28,15 +28,17 @@ public class ResultService {
     private final ResultRepository resultRepository;
     private final MonitoredEndpointRepository monitoredEndpointRepository;
     private final ValidationService validationService;
+    private final UserService userService;
     private final ScheduledExecutorService scheduler;
     private final HashMap<Long, ScheduledFuture<?>> scheduledTasks;
     private final int NUMBER_OF_RESULTS_TO_PRINT = 10;
 
     @Autowired
-    public ResultService(ResultRepository resultRepository, MonitoredEndpointRepository monitoredEndpointRepository, ValidationService validationService) {
+    public ResultService(ResultRepository resultRepository, MonitoredEndpointRepository monitoredEndpointRepository, ValidationService validationService, UserService userService) {
         this.resultRepository = resultRepository;
         this.monitoredEndpointRepository = monitoredEndpointRepository;
         this.validationService = validationService;
+        this.userService = userService;
         this.scheduledTasks = new HashMap<>();
         this.scheduler = Executors.newScheduledThreadPool(1);
 
@@ -48,7 +50,7 @@ public class ResultService {
 
     public ResultDTO findResultAsDTO(String accessToken, Long resultId)
             throws UserIsNotAllowedToModifyThisEndpointException, UserDoesNotExistException, ResultDoesNotExistException {
-        User user = validationService.getUserEntityOrThrowExceptionIfUserDoesNotExist(accessToken);
+        User user = userService.getUserByAccessToken(accessToken);
         Optional<Result> optionalResult = resultRepository.findById(resultId);
         if (optionalResult.isEmpty()) {
             throw new ResultDoesNotExistException("Result with id " + resultId + " does not exist.");
@@ -60,7 +62,7 @@ public class ResultService {
 
     public List<ResultDTO> getLastResults(String accessToken, Long endpointId)
             throws UserDoesNotExistException, EndpointDoesNotExistException, UserIsNotAllowedToModifyThisEndpointException {
-        User user = validationService.getUserEntityOrThrowExceptionIfUserDoesNotExist(accessToken);
+        User user = userService.getUserByAccessToken(accessToken);
         MonitoredEndpoint monitoredEndpoint =
                 validationService.getMonitoredEndpointOrThrowExceptionIfEndpointDoesNotExist(endpointId);
         validationService.checkIfUserIsAllowedToModifyThisEndpointOrThrowException(user, monitoredEndpoint);

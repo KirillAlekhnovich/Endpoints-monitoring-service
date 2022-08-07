@@ -13,7 +13,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,6 +32,9 @@ public class MonitoredEndpointServiceTests {
     ResultService resultService;
 
     @Mock
+    UserService userService;
+
+    @Mock
     MonitoredEndpointRepository monitoredEndpointRepository;
 
     @Mock
@@ -44,7 +46,7 @@ public class MonitoredEndpointServiceTests {
         MonitoredEndpoint monitoredEndpoint = new MonitoredEndpoint("Google", "https://google.com", null, null, 30, user);
         MonitoredEndpointDTO monitoredEndpointDTO = new MonitoredEndpointDTO(2L, "Google", "https://google.com", null, null, 30, 1L);
         Mockito.when(monitoredEndpointRepository.save(any(MonitoredEndpoint.class))).thenReturn(monitoredEndpoint);
-        Mockito.when(validationService.getUserEntityOrThrowExceptionIfUserDoesNotExist("123")).thenReturn(user);
+        Mockito.when(userService.getUserByAccessToken("123")).thenReturn(user);
 
         MonitoredEndpointDTO returnedDTO = monitoredEndpointService.createMonitoredEndpoint("123", monitoredEndpointDTO);
         assertEquals(monitoredEndpointDTO.getName(), returnedDTO.getName());
