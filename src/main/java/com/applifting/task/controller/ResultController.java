@@ -4,7 +4,6 @@ import com.applifting.task.dto.ResultDTO;
 import com.applifting.task.exception.*;
 import com.applifting.task.service.ResultService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

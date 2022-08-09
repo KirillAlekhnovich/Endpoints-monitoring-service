@@ -29,12 +29,12 @@ public class MonitoredEndpointService {
     public MonitoredEndpointDTO createMonitoredEndpoint(String accessToken, MonitoredEndpointDTO monitoredEndpointDTO)
             throws UserDoesNotExistException, EndpointAlreadyExistsException, EndpointCanNotBeModifiedException, InvalidMonitoringIntervalException {
         User loggedUser = userService.getUserByAccessToken(accessToken);
-        validationService.checkIfUserAlreadyHasAnEndpointWithThisURLOrThrowException(loggedUser, monitoredEndpointDTO.getUrl());
+        validationService.checkIfUserMonitorsThisURL(loggedUser, monitoredEndpointDTO.getUrl());
         // Avoiding nullptr exception
         if (monitoredEndpointDTO.getMonitoredInterval() == null) {
             monitoredEndpointDTO.setMonitoredInterval(0);
         }
-        validationService.checkIfCreatedDTOParametersAreValidOrThrowException(monitoredEndpointDTO);
+        validationService.checkEndpointCreatingParameters(monitoredEndpointDTO);
         monitoredEndpointDTO.setDateOfCreation(LocalDateTime.now());
         MonitoredEndpoint monitoredEndpoint = new MonitoredEndpoint(
                 monitoredEndpointDTO.getName(),
@@ -64,7 +64,7 @@ public class MonitoredEndpointService {
             throws UserDoesNotExistException, EndpointDoesNotExistException, UserCantModifyEndpointException,
             EndpointCanNotBeModifiedException, InvalidMonitoringIntervalException {
         User loggedUser = userService.getUserByAccessToken(accessToken);
-        MonitoredEndpoint monitoredEndpoint = validationService.getMonitoredEndpointOrThrowExceptionIfEndpointDoesNotExist(endpointId);
+        MonitoredEndpoint monitoredEndpoint = validationService.getMonitoredEndpoint(endpointId);
         return updateMonitoredEndpoint(loggedUser, monitoredEndpoint, updatedMonitoredEndpointDTO);
     }
 
@@ -76,8 +76,8 @@ public class MonitoredEndpointService {
                                                         MonitoredEndpointDTO updatedMonitoredEndpointDTO)
             throws UserCantModifyEndpointException, EndpointCanNotBeModifiedException,
             InvalidMonitoringIntervalException {
-        validationService.checkIfUserIsAllowedToModifyThisEndpointOrThrowException(loggedUser, monitoredEndpoint);
-        validationService.checkIfUpdatedDTOParametersAreValidOrThrowException(monitoredEndpoint, updatedMonitoredEndpointDTO);
+        validationService.checkIfUserCanModifyThisEndpoint(loggedUser, monitoredEndpoint);
+        validationService.checkEndpointUpdatingParameters(monitoredEndpoint, updatedMonitoredEndpointDTO);
         // Only following parameters are allowed to be updated
         monitoredEndpoint.updateParameters(
                 updatedMonitoredEndpointDTO.getName(),
@@ -91,8 +91,8 @@ public class MonitoredEndpointService {
     public void deleteMonitoredEndpointById(String accessToken, Long id)
             throws EndpointDoesNotExistException, UserDoesNotExistException, UserCantModifyEndpointException {
         User loggedUser = userService.getUserByAccessToken(accessToken);
-        MonitoredEndpoint monitoredEndpoint = validationService.getMonitoredEndpointOrThrowExceptionIfEndpointDoesNotExist(id);
-        validationService.checkIfUserIsAllowedToModifyThisEndpointOrThrowException(loggedUser, monitoredEndpoint);
+        MonitoredEndpoint monitoredEndpoint = validationService.getMonitoredEndpoint(id);
+        validationService.checkIfUserCanModifyThisEndpoint(loggedUser, monitoredEndpoint);
         resultService.stopMonitoringEndpoint(monitoredEndpoint);
         monitoredEndpointRepository.deleteById(id);
     }

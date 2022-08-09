@@ -17,7 +17,7 @@ public class ValidationService {
         this.monitoredEndpointRepository = monitoredEndpointRepository;
     }
 
-    public MonitoredEndpoint getMonitoredEndpointOrThrowExceptionIfEndpointDoesNotExist(Long id)
+    public MonitoredEndpoint getMonitoredEndpoint(Long id)
             throws EndpointDoesNotExistException {
         Optional<MonitoredEndpoint> optionalId = monitoredEndpointRepository.findById(id);
         if (optionalId.isEmpty()) {
@@ -27,14 +27,14 @@ public class ValidationService {
     }
 
     // Checks is user created this endpoint
-    public void checkIfUserIsAllowedToModifyThisEndpointOrThrowException(User user, MonitoredEndpoint monitoredEndpoint)
+    public void checkIfUserCanModifyThisEndpoint(User user, MonitoredEndpoint monitoredEndpoint)
             throws UserCantModifyEndpointException {
         if (!user.getId().equals(monitoredEndpoint.getOwner().getId())) {
             throw new UserCantModifyEndpointException();
         }
     }
 
-    public void checkIfUserAlreadyHasAnEndpointWithThisURLOrThrowException(User user, String monitoredEndpointURL)
+    public void checkIfUserMonitorsThisURL(User user, String monitoredEndpointURL)
             throws EndpointAlreadyExistsException {
         Optional<MonitoredEndpoint> optionalMonitoredEndpoint
                 = Optional.ofNullable(monitoredEndpointRepository.findByOwnerAndUrl(user, monitoredEndpointURL));
@@ -44,8 +44,8 @@ public class ValidationService {
     }
 
     // User in update method
-    public void checkIfRestrictedFieldsHaveNotBeenModifiedOrThrowException
-            (MonitoredEndpoint monitoredEndpoint, MonitoredEndpointDTO updatedMonitoredEndpointDTO)
+    public void checkIfRestrictedFieldsAreNotModified
+    (MonitoredEndpoint monitoredEndpoint, MonitoredEndpointDTO updatedMonitoredEndpointDTO)
             throws EndpointCanNotBeModifiedException {
         // Checking date of creation
         if (updatedMonitoredEndpointDTO.getDateOfCreation() != null
@@ -65,7 +65,7 @@ public class ValidationService {
     }
 
     // Checks during create
-    public void checkIfCreatedDTOParametersAreValidOrThrowException(MonitoredEndpointDTO monitoredEndpointDTO)
+    public void checkEndpointCreatingParameters(MonitoredEndpointDTO monitoredEndpointDTO)
             throws EndpointCanNotBeModifiedException, InvalidMonitoringIntervalException {
         if (monitoredEndpointDTO.getDateOfCreation() != null) {
             throw new EndpointCanNotBeModifiedException("You are not allowed to set date of creation manually");
@@ -79,10 +79,9 @@ public class ValidationService {
     }
 
     // Checks during update
-    public void checkIfUpdatedDTOParametersAreValidOrThrowException(MonitoredEndpoint monitoredEndpoint,
-                                                                    MonitoredEndpointDTO updatedEndpointDTO)
+    public void checkEndpointUpdatingParameters(MonitoredEndpoint monitoredEndpoint, MonitoredEndpointDTO updatedEndpointDTO)
             throws EndpointCanNotBeModifiedException, InvalidMonitoringIntervalException {
-        checkIfRestrictedFieldsHaveNotBeenModifiedOrThrowException(monitoredEndpoint, updatedEndpointDTO);
+        checkIfRestrictedFieldsAreNotModified(monitoredEndpoint, updatedEndpointDTO);
         // If new value was not entered keep previous values
         if (updatedEndpointDTO.getName() == null) {
             updatedEndpointDTO.setName(monitoredEndpoint.getName());

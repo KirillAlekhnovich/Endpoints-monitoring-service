@@ -48,7 +48,7 @@ public class UserService {
         if (optionalUser.isPresent()) {
             throw new UserAlreadyExistsException();
         }
-        if (!emailIsValid(userDTO.getEmail())){
+        if (!emailIsValid(userDTO.getEmail())) {
             throw new EmailIsNotValidException();
         }
     }

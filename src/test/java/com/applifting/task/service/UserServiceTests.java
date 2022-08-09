@@ -10,8 +10,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -27,7 +25,7 @@ public class UserServiceTests {
     UserRepository userRepository;
 
     @Test
-    public void testCreateUser() throws Exception {
+    public void testCreateUser() {
         User user = new User("Batman", "batman@example.com", "dcb20f8a-5657-4f1b-9f7f-ce65739b359e");
         UserDTO userDTO = new UserDTO(1L, "Batman", "batman@example.com", "dcb20f8a-5657-4f1b-9f7f-ce65739b359e");
         Mockito.when(userRepository.save(any(User.class))).thenReturn(user);

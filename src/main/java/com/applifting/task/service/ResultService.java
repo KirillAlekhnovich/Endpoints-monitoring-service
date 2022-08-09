@@ -56,7 +56,7 @@ public class ResultService {
             throw new ResultDoesNotExistException(resultId);
         }
         Result result = optionalResult.get();
-        validationService.checkIfUserIsAllowedToModifyThisEndpointOrThrowException(user, result.getMonitoredEndpoint());
+        validationService.checkIfUserCanModifyThisEndpoint(user, result.getMonitoredEndpoint());
         return toDTO(result);
     }
 
@@ -64,8 +64,8 @@ public class ResultService {
             throws UserDoesNotExistException, EndpointDoesNotExistException, UserCantModifyEndpointException {
         User user = userService.getUserByAccessToken(accessToken);
         MonitoredEndpoint monitoredEndpoint =
-                validationService.getMonitoredEndpointOrThrowExceptionIfEndpointDoesNotExist(endpointId);
-        validationService.checkIfUserIsAllowedToModifyThisEndpointOrThrowException(user, monitoredEndpoint);
+                validationService.getMonitoredEndpoint(endpointId);
+        validationService.checkIfUserCanModifyThisEndpoint(user, monitoredEndpoint);
         List<Result> results = resultRepository.findAllByMonitoredEndpoint(monitoredEndpoint);
         // Trim list to get <= 10 last results
         results.sort(Comparator.comparing(Result::getDateOfCheck).reversed());

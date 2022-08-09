@@ -4,7 +4,6 @@ import com.applifting.task.dto.MonitoredEndpointDTO;
 import com.applifting.task.entity.MonitoredEndpoint;
 import com.applifting.task.entity.User;
 import com.applifting.task.repository.MonitoredEndpointRepository;
-import com.applifting.task.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,11 +36,8 @@ public class MonitoredEndpointServiceTests {
     @Mock
     MonitoredEndpointRepository monitoredEndpointRepository;
 
-    @Mock
-    UserRepository userRepository;
-
     @Test
-    public void testCreateEndpoint() throws Exception {
+    public void testCreateEndpoint() {
         User user = new User(1L, "Batman", "batman@example.com", "123");
         MonitoredEndpoint monitoredEndpoint = new MonitoredEndpoint("Google", "https://google.com", null, null, 30, user);
         MonitoredEndpointDTO monitoredEndpointDTO = new MonitoredEndpointDTO(2L, "Google", "https://google.com", null, null, 30, 1L);
@@ -58,7 +54,7 @@ public class MonitoredEndpointServiceTests {
     }
 
     @Test
-    public void testGetUserEndpoints() throws Exception {
+    public void testGetUserEndpoints() {
         User user = new User(1L, "Batman", "batman@example.com", "123");
         MonitoredEndpoint monitoredEndpoint1 = new MonitoredEndpoint(2L, "Google", "https://google.com", null, null, 0, user);
         MonitoredEndpoint monitoredEndpoint2 = new MonitoredEndpoint(3L, "YouTube", "https://youtube.com", null, null, 0, user);
@@ -70,12 +66,12 @@ public class MonitoredEndpointServiceTests {
     }
 
     @Test
-    public void testUpdateEndpoint() throws Exception {
+    public void testUpdateEndpoint() {
         User user = new User(1L, "Batman", "batman@example.com", "123");
         MonitoredEndpoint monitoredEndpoint = new MonitoredEndpoint("Google", "https://google.com", null, null, 30, user);
         MonitoredEndpointDTO monitoredEndpointDTO = new MonitoredEndpointDTO(2L, "Google", "https://google.com", null, null, 30, 1L);
         Mockito.when(monitoredEndpointRepository.save(any(MonitoredEndpoint.class))).thenReturn(monitoredEndpoint);
-        Mockito.when(validationService.getMonitoredEndpointOrThrowExceptionIfEndpointDoesNotExist(2L)).thenReturn(monitoredEndpoint);
+        Mockito.when(validationService.getMonitoredEndpoint(2L)).thenReturn(monitoredEndpoint);
 
         MonitoredEndpointDTO returnedDTO = monitoredEndpointService.updateById("123", 2L, monitoredEndpointDTO);
         assertEquals(monitoredEndpointDTO.getName(), returnedDTO.getName());
@@ -85,10 +81,10 @@ public class MonitoredEndpointServiceTests {
     }
 
     @Test
-    public void testDeleteEndpoint() throws Exception {
+    public void testDeleteEndpoint() {
         MonitoredEndpoint monitoredEndpoint = new MonitoredEndpoint();
         monitoredEndpoint.setId(1L);
-        Mockito.when(validationService.getMonitoredEndpointOrThrowExceptionIfEndpointDoesNotExist(any(Long.class))).thenReturn(monitoredEndpoint);
+        Mockito.when(validationService.getMonitoredEndpoint(any(Long.class))).thenReturn(monitoredEndpoint);
         monitoredEndpointService.deleteMonitoredEndpointById("123", monitoredEndpoint.getId());
         verify(monitoredEndpointRepository, times(1)).deleteById(1L);
     }

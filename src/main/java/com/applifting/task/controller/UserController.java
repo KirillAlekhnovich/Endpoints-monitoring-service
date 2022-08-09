@@ -1,12 +1,8 @@
 package com.applifting.task.controller;
 
 import com.applifting.task.dto.UserDTO;
-import com.applifting.task.exception.EmailIsNotValidException;
-import com.applifting.task.exception.ParameterMissingException;
-import com.applifting.task.exception.UserAlreadyExistsException;
 import com.applifting.task.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -12,7 +12,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -59,7 +58,5 @@ public class ResultControllerTests {
 
                 .andExpect(jsonPath("$[1].returnedHttpStatusCode", Matchers.is("301")))
                 .andExpect(jsonPath("$[1].returnedPayload", Matchers.is("Redirect")));
-
     }
-
 }
